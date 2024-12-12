@@ -1,39 +1,80 @@
-from transformers import pipeline
-import json
+import torch
+from transformers import BertTokenizer, Trainer, TrainingArguments, AutoModelForSequenceClassification
+from torch.utils.data import Dataset
 
-# 加載指定的情感分析模型
-model_name = "juliensimon/reviews-sentiment-analysis"
-sentiment_pipeline = pipeline("sentiment-analysis", model=model_name)
+# 定義數據集類別
+class SentimentDataset(Dataset):
+    def __init__(self, texts, labels, tokenizer, max_length):
+        self.texts = texts
+        self.labels = labels
+        self.tokenizer = tokenizer
+        self.max_length = max_length
 
-# 自定義標籤轉換
-label_mapping = {0: 'NEGATIVE', 1: 'POSITIVE'}
+    def __len__(self):
+        return len(self.texts)
 
-# 單筆 review.json 資料
-review_data = {
-    "review_id": "KU_O5udG6zpxOg-VcAEodg",
-    "user_id": "mh_-eMZ6K5RLWhZyISBhwA",
-    "business_id": "XQfwVwDr-v0ZS3_CbbE5Xw",
-    "stars": 3.0,
-    "useful": 0,
-    "funny": 0,
-    "cool": 0,
-    "text": "If you decide to eat here, just be aware it is going to take about 2 hours from beginning to end. We have tried it multiple times, because I want to like it! I have been to it's other locations in NJ and never had a bad experience. \n\nThe food is good, but it takes a very long time to come out. The waitstaff is very young, but usually pleasant. We have just had too many experiences where we spent way too long waiting. We usually opt for another diner or restaurant on the weekends, in order to be done quicker.",
-    "date": "2018-07-07 22:09:11"
-}
+    def __getitem__(self, item):
+        text = self.texts[item]
+        label = self.labels[item]
 
-# 提取評論文本
-review_text = review_data['text']
+        encoding = self.tokenizer.encode_plus(
+            text,
+            add_special_tokens=True,  # Add [CLS] and [SEP] tokens
+            max_length=self.max_length,
+            padding='max_length',  # Pad to max length
+            truncation=True,
+            return_attention_mask=True,  # Return attention mask
+            return_tensors='pt',  # Return PyTorch tensors
+        )
 
-# 對評論文本進行情感分析
-result = sentiment_pipeline(review_text)
+        return {
+            'input_ids': encoding['input_ids'].flatten(),
+            'attention_mask': encoding['attention_mask'].flatten(),
+            'labels': torch.tensor(label, dtype=torch.long)
+        }
 
-# 轉換標籤
-for item in result:
-    item['label'] = label_mapping[int(item['label'].split('_')[-1])]
+# 載入 tokenizer 和模型
+tokenizer = BertTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
+# model = BertForSequenceClassification.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment', num_labels=5)
 
-# 添加情感分析結果到 review_data
-review_data['sentiment_label'] = result[0]['label']
-review_data['sentiment_score'] = result[0]['score']
+if __name__ == '__main__':
+    model = AutoModelForSequenceClassification.from_pretrained("nlptown/bert-base-multilingual-uncased-sentiment", num_labels=5)
 
-# 輸出結果
-print(json.dumps(review_data, indent=4))
+    # 定義訓練數據
+    train_texts = ["我愛這個產品", "這個服務太差了", "品質不錯，會再來", "糟透了，完全不滿意"]
+    train_labels = [4, 0, 3, 1]  # 標籤範圍是 0 到 4，表示情感分數
+    train_dataset = SentimentDataset(train_texts, train_labels, tokenizer, max_length=128)
+
+    # 設置訓練參數
+    training_args = TrainingArguments(
+        output_dir='./results',            # 訓練結果儲存路徑
+        num_train_epochs=3,                # 訓練輪數
+        per_device_train_batch_size=8,     # 每次訓練的批次大小
+        per_device_eval_batch_size=16,     # 驗證時的批次大小
+        warmup_steps=500,                  # 預熱步數
+        weight_decay=0.01,                 # 正則化
+        logging_dir='./logs',              # 訓練過程日誌儲存路徑
+        logging_steps=10,                  # 每多少步記錄一次日誌
+    )
+
+    # 初始化 Trainer
+    trainer = Trainer(
+        model=model,                       # 使用的模型
+        args=training_args,                # 訓練參數
+        train_dataset=train_dataset,       # 訓練數據集
+    )
+
+    # 訓練模型
+    trainer.train()
+
+    # 儲存訓練好的模型
+    trainer.save_model("./sentiment_model")
+
+    # 評估模型
+    # 在此範例中，假設有測試數據集
+    test_texts = ["這是很棒的經驗", "非常糟糕的服務"]
+    test_labels = [4, 0]
+    test_dataset = SentimentDataset(test_texts, test_labels, tokenizer, max_length=128)
+
+    # 設定評估參數並進行評估
+    trainer.evaluate(test_dataset)
