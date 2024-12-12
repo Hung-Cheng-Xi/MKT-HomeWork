@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "mkt"
+version = "0.1.0"
+description = ""
+authors = ["Hung-Cheng-Xi <11146062@ntub.edu.tw>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.12.7"
+transformers = "^4.47.0"
+torch = "^2.5.1"
+torchvision = "^0.20.1"
+aiofiles = "^24.1.0"
+orjson = "^3.10.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
