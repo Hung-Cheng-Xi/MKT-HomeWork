@@ -12,6 +12,9 @@ torch = "^2.5.1"
 torchvision = "^0.20.1"
 aiofiles = "^24.1.0"
 orjson = "^3.10.12"
+accelerate = "^1.2.0"
+torchaudio = "^2.5.1"
+scikit-learn = "^1.6.0"
 
 
 [build-system]
