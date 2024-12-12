@@ -13,6 +13,9 @@ Icon
 # yelp data
 data/
 
+# training model
+results/
+sentiment_model/
 
 # Thumbnails
 ._*
