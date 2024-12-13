@@ -1,11 +1,15 @@
 import torch
-from transformers import BertTokenizer, AutoModelForSequenceClassification
-from torch.utils.data import Dataset
+from transformers import AutoModelForSequenceClassification, BertTokenizer
+
 
 class SentimentPredictor:
     def __init__(self, model_path):
-        self.tokenizer = BertTokenizer.from_pretrained('nlptown/bert-base-multilingual-uncased-sentiment')
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
+        self.tokenizer = BertTokenizer.from_pretrained(
+            "nlptown/bert-base-multilingual-uncased-sentiment"
+        )
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            model_path
+        )
         self.model.eval()  # 設置為評估模式
 
     def predict(self, text):
@@ -14,17 +18,17 @@ class SentimentPredictor:
             text,
             add_special_tokens=True,
             max_length=128,
-            padding='max_length',
+            padding="max_length",
             truncation=True,
             return_attention_mask=True,
-            return_tensors='pt'
+            return_tensors="pt",
         )
 
         # 獲取模型預測以及禁止梯度計算
         with torch.no_grad():
             outputs = self.model(
-                input_ids=encoding['input_ids'],
-                attention_mask=encoding['attention_mask']
+                input_ids=encoding["input_ids"],
+                attention_mask=encoding["attention_mask"],
             )
 
         # 獲取預測結果
@@ -37,14 +41,15 @@ class SentimentPredictor:
             1: "負面",
             2: "中性",
             3: "正面",
-            4: "非常正面"
+            4: "非常正面",
         }
 
         return {
-            'score': score,
-            'sentiment': sentiment_map[score],
-            'probabilities': predictions[0].tolist()
+            "score": score,
+            "sentiment": sentiment_map[score],
+            "probabilities": predictions[0].tolist(),
         }
+
 
 if __name__ == "__main__":
     # 初始化預測器
