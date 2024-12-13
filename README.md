@@ -16,7 +16,7 @@
 
 ```
 python -m venv myenv
-source myenv/bin/activate
+source myenv/bin/activate # or env\Scripts\activate
 
 pip install -r requirements.txt
 ```
