@@ -53,14 +53,14 @@ python check_tag.py
 
 依賴項定義在 requirements.txt 和 pyproject.toml 中。主要依賴項包括：
 
-transformers\n
-torch
-torchvision
-aiofiles
-orjson
-accelerate
-torchaudio
-scikit-learn
+- transformers
+- torch
+- torchvision
+- aiofiles
+- orjson
+- accelerate
+- torchaudio
+- scikit-learn
 
 ## 版本控制
 
