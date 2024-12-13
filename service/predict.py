@@ -61,7 +61,7 @@ def get_test_data() -> List:
 
     # 拼接相對路徑
     input_file = (
-        script_dir.parent / "database" / "custom_data" / "train.json"
+        script_dir.parent / "data" / "custom_data" / "train.json"
     )  # 原始 JSON 文件
 
     # 讀取 JSON 文件並提取訓練數據
@@ -69,7 +69,7 @@ def get_test_data() -> List:
     with open(input_file, "r", encoding="utf-8") as file:
         for i, line in enumerate(file):
 
-            if i > 1000:
+            if i > 5:
                 break
 
             review = json.loads(line)
