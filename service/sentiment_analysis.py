@@ -22,7 +22,7 @@ class SentimentDataset(Dataset):
             add_special_tokens=True,  # Add [CLS] and [SEP] tokens
             max_length=self.max_length,
             padding='max_length',  # Pad to max length
-            truncation=True,
+            truncation=True, # 文字超出長度是否截斷
             return_attention_mask=True,  # Return attention mask
             return_tensors='pt',  # Return PyTorch tensors
         )
