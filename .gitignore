@@ -11,7 +11,7 @@
 Icon
 
 # yelp data
-data/
+*.json
 
 # training model
 results/
