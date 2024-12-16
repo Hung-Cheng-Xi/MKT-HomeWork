@@ -1,3 +1,4 @@
+from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -63,10 +64,18 @@ def plot_comparison(sentences, model1_results, model2_results, save_path=None):
     # 添加緊湊布局
     plt.tight_layout()
 
+    # 獲取當前腳本目錄
+    script_dir = Path(__file__).resolve().parent
+
+    # 拼接相對路徑
+    picture_path = (
+        script_dir.parent / "asset" / save_path
+    )
+
     # 保存圖表（如果指定保存路徑）
     if save_path:
-        plt.savefig(save_path, dpi=300)
-        print(f"圖表已保存至: {save_path}")
+        plt.savefig(picture_path, dpi=300)
+        print(f"圖表已保存至: {picture_path}")
 
     # 顯示圖表
     plt.show()
@@ -94,10 +103,18 @@ def plot_distribution(model1_results, model2_results, save_path=None):
     # 添加緊湊布局
     plt.tight_layout()
 
+    # 獲取當前腳本目錄
+    script_dir = Path(__file__).resolve().parent
+
+    # 拼接相對路徑
+    picture_path = (
+        script_dir.parent / "asset" / save_path
+    )
+
     # 保存圖表（如果指定保存路徑）
     if save_path:
-        plt.savefig(save_path, dpi=300)
-        print(f"圖表已保存至: {save_path}")
+        plt.savefig(picture_path, dpi=300)
+        print(f"圖表已保存至: {picture_path}")
 
     # 顯示圖表
     plt.show()

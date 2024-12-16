@@ -63,7 +63,7 @@ def get_train_data() -> Tuple[List, List]:
 
     # 拼接相對路徑
     input_file = (
-        script_dir.parent / "data" / "custom_data" / "train.json"
+        script_dir.parent.parent / "data" / "custom_data" / "train.json"
     )  # 原始 JSON 文件
 
     # 讀取 JSON 文件並提取訓練數據

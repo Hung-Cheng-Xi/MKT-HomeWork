@@ -3,9 +3,18 @@ from pathlib import Path
 from typing import List
 
 import torch
-from compare_models import compare_models, plot_comparison, plot_distribution
 from transformers import AutoModelForSequenceClassification, BertTokenizer
 
+from ..service.chart import compare_models, plot_comparison, plot_distribution
+# import sys
+# import os
+
+# 將專案根目錄添加到 sys.path
+# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
+# print(project_root)
+# sys.path.append(project_root)
+
+# from service.chart import compare_models, plot_comparison, plot_distribution
 
 class SentimentPredictor:
     def __init__(self, model_path):
@@ -62,7 +71,7 @@ def get_test_data() -> List:
 
     # 拼接相對路徑
     input_file = (
-        script_dir.parent / "data" / "custom_data" / "train.json"
+        script_dir.parent.parent / "data" / "custom_data" / "train.json"
     )  # 原始 JSON 文件
 
     # 讀取 JSON 文件並提取訓練數據
