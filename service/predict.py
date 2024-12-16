@@ -5,6 +5,10 @@ from typing import List
 import torch
 from transformers import AutoModelForSequenceClassification, BertTokenizer
 
+from compare_models import compare_models, plot_comparison  # 匯入比較和繪圖功能
+from compare_models import compare_models, plot_comparison, plot_distribution
+from predict import SentimentPredictor, get_test_data
+
 
 class SentimentPredictor:
     def __init__(self, model_path):
@@ -56,42 +60,24 @@ class SentimentPredictor:
 
 
 def get_test_data() -> List:
-    # 獲取當前腳本目錄
-    script_dir = Path(__file__).resolve().parent
-
-    # 拼接相對路徑
-    input_file = (
-        script_dir.parent / "data" / "custom_data" / "train.json"
-    )  # 原始 JSON 文件
-
-    # 讀取 JSON 文件並提取訓練數據
-    test_sentences = []
-    with open(input_file, "r", encoding="utf-8") as file:
-        for i, line in enumerate(file):
-
-            if i > 5:
-                break
-
-            review = json.loads(line)
-            test_sentences.append(review["text"])
-            if (i + 1) % 100000 == 0:
-                print(f"已處理 {i + 1} 條數據")
-    print("數據讀取完成")
-
+    test_sentences = ["hello world!!", "fuck you!!"]
     return test_sentences
 
 
 if __name__ == "__main__":
-    # 初始化預測器
-    predictor = SentimentPredictor("./sentiment_model")
+    # 初始化兩個預測器
+    predictor1 = SentimentPredictor("nlptown/bert-base-multilingual-uncased-sentiment")
+    predictor2 = SentimentPredictor("./sentiment_model")
 
     # 獲取測試數據
-    test_sentences = get_test_data()
+    test_sentences = get_test_data()  # 確保 test_sentences 是從 get_test_data 函數中返回的列表
 
-    # 進行預測
-    for sentence in test_sentences:
-        result = predictor.predict(sentence)
-        print(f"\n文本: {sentence}")
-        print(f"情感評分: {result['score'] + 1}")
-        print(f"情感: {result['sentiment']}")
-        print(f"各類別概率: {[round(p, 4) for p in result['probabilities']]}")
+    # 比較兩個模型
+    model1_results, model2_results = compare_models(predictor1, predictor2, test_sentences)
+
+    # 繪製散點圖比較
+    plot_comparison(test_sentences, model1_results, model2_results, save_path="comparison_scatter_plot.png")
+
+    # 繪製分佈圖比較
+    plot_distribution(model1_results, model2_results, save_path="comparison_distribution_plot.png")
+

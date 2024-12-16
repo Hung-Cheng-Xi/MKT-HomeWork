@@ -62,25 +62,28 @@ def get_train_data() -> Tuple[List, List]:
     script_dir = Path(__file__).resolve().parent
 
     # 拼接相對路徑
-    input_file = (
-        script_dir.parent / "data" / "custom_data" / "train.json"
-    )  # 原始 JSON 文件
+    # input_file = (
+    #     script_dir.parent / "data" / "custom_data" / "train.json"
+    # )  # 原始 JSON 文件
 
-    # 讀取 JSON 文件並提取訓練數據
-    train_texts = []
-    train_labels = []
-    with open(input_file, "r", encoding="utf-8") as file:
-        for i, line in enumerate(file):
+    # # 讀取 JSON 文件並提取訓練數據
+    # train_texts = []
+    # train_labels = []
+    # with open(input_file, "r", encoding="utf-8") as file:
+    #     for i, line in enumerate(file):
 
-            if i > 1000:
-                break
+    #         if i > 1000:
+    #             break
 
-            review = json.loads(line)
-            train_texts.append(review["text"])
-            train_labels.append(int(review["stars"]))
-            if (i + 1) % 100000 == 0:
-                print(f"已處理 {i + 1} 條數據")
-    print("數據讀取完成")
+    #         review = json.loads(line)
+    #         train_texts.append(review["text"])
+    #         train_labels.append(int(review["stars"]))
+    #         if (i + 1) % 100000 == 0:
+    #             print(f"已處理 {i + 1} 條數據")
+    # print("數據讀取完成")
+    train_texts = ["hello", "good", "bad", "fuck"]
+    train_labels = [2, 4, 1, 0]
+
 
     return train_texts, train_labels
 
@@ -106,7 +109,7 @@ if __name__ == "__main__":
     # 設置訓練參數
     training_args = TrainingArguments(
         output_dir="./results",  # 訓練結果儲存路徑
-        num_train_epochs=3,  # 訓練輪數
+        num_train_epochs=1,  # 訓練輪數
         per_device_train_batch_size=train_batch_size,  # 每次訓練的批次大小
         per_device_eval_batch_size=train_batch_size,  # 驗證時的批次大小
         warmup_steps=500,  # 預熱步數
