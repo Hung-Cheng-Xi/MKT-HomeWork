@@ -16,6 +16,8 @@ accelerate = "^1.2.0"
 torchaudio = "^2.5.1"
 scikit-learn = "^1.6.0"
 pathlib = "^1.0.1"
+matplotlib = "^3.10.0"
+seaborn = "^0.13.2"
 
 
 [tool.poetry.group.dev.dependencies]
