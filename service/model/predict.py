@@ -4,17 +4,9 @@ from typing import List
 
 import torch
 from transformers import AutoModelForSequenceClassification, BertTokenizer
+from service.chart.compare_models import compare_models, plot_comparison, plot_distribution
 
-from ..service.chart import compare_models, plot_comparison, plot_distribution
-# import sys
-# import os
 
-# 將專案根目錄添加到 sys.path
-# project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
-# print(project_root)
-# sys.path.append(project_root)
-
-# from service.chart import compare_models, plot_comparison, plot_distribution
 
 class SentimentPredictor:
     def __init__(self, model_path):
@@ -96,7 +88,7 @@ if __name__ == "__main__":
     predictor1 = SentimentPredictor(
         "nlptown/bert-base-multilingual-uncased-sentiment"
     )
-    predictor2 = SentimentPredictor("./sentiment_model")
+    predictor2 = SentimentPredictor("service/model/sentiment_model")
 
     # 獲取測試數據
     test_sentences = (
