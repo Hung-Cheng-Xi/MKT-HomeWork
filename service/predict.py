@@ -4,6 +4,7 @@ from typing import List
 
 import torch
 from transformers import AutoModelForSequenceClassification, BertTokenizer
+from insta_food import InstaFoodNER
 
 
 class SentimentPredictor:
@@ -89,9 +90,19 @@ if __name__ == "__main__":
     test_sentences = get_test_data()
 
     # 進行預測
+    total = 0
+    food_count = 0
     for sentence in test_sentences:
-        result = predictor.predict(sentence)
-        print(f"\n文本: {sentence}")
-        print(f"情感評分: {result['score'] + 1}")
-        print(f"情感: {result['sentiment']}")
-        print(f"各類別概率: {[round(p, 4) for p in result['probabilities']]}")
+        result = InstaFoodNER.analyze(sentence)
+
+        total += 1
+        if len(result) > 0:
+            result = predictor.predict(sentence)
+            print(f"\n文本: {sentence}")
+            print(f"情感評分: {result['score'] + 1}")
+            print(f"情感: {result['sentiment']}")
+            print(f"各類別概率: {[round(p, 4) for p in result['probabilities']]}")
+
+            food_count += 1
+
+    print(f"\n共預測 {total} 條數據, 其中 {food_count} 條為食物相關內容")
