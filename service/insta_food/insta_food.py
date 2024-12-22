@@ -3,14 +3,14 @@ from transformers import pipeline
 
 
 class InstaFoodNER:
-	_tokenizer = AutoTokenizer.from_pretrained('Dizex/InstaFoodRoBERTa-NER')
+	_tokenizer = AutoTokenizer.from_pretrained("Dizex/InstaFoodRoBERTa-NER")
 	_model = AutoModelForTokenClassification.from_pretrained(
-		'Dizex/InstaFoodRoBERTa-NER'
+		"Dizex/InstaFoodRoBERTa-NER"
 	)
-	_pipeline = pipeline('ner', model=_model, tokenizer=_tokenizer)
+	_pipeline = pipeline("ner", model=_model, tokenizer=_tokenizer)
 
 	@classmethod
-	def analyze(cls, text, aggregation_strategy='simple'):
+	def analyze(cls, text, aggregation_strategy="simple"):
 		"""
 		Perform Named Entity Recognition (NER) on the provided text.
 

@@ -37,7 +37,7 @@ extend-select = ["E501"]
 
 
 [tool.ruff.format]
-quote-style = "single"
+quote-style = "double"
 indent-style = "tab"
 
 # Like Black, respect magic trailing commas.

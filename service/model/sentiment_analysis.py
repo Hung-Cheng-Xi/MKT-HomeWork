@@ -33,16 +33,16 @@ class SentimentDataset(Dataset):
 			text,
 			add_special_tokens=True,  # Add [CLS] and [SEP] tokens
 			max_length=self.max_length,
-			padding='max_length',  # Pad to max length
+			padding="max_length",  # Pad to max length
 			truncation=True,  # 文字超出長度是否截斷
 			return_attention_mask=True,  # Return attention mask
-			return_tensors='pt',  # Return PyTorch tensors
+			return_tensors="pt",  # Return PyTorch tensors
 		)
 
 		return {
-			'input_ids': encoding['input_ids'].flatten(),
-			'attention_mask': encoding['attention_mask'].flatten(),
-			'labels': torch.tensor(label, dtype=torch.long),
+			"input_ids": encoding["input_ids"].flatten(),
+			"attention_mask": encoding["attention_mask"].flatten(),
+			"labels": torch.tensor(label, dtype=torch.long),
 		}
 
 
@@ -54,15 +54,15 @@ class DeviceManager:
 		Check if the environment is local CPU or Colab T4 GPU.
 		:return: Device type ("Local CPU" or "Colab T4 GPU")
 		"""
-		device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-		if device.type == 'cpu':
-			return 'Local CPU'
+		device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+		if device.type == "cpu":
+			return "Local CPU"
 
 		gpu_name = torch.cuda.get_device_name(0)
-		if 'T4' in gpu_name:
-			return 'Colab T4 GPU'
+		if "T4" in gpu_name:
+			return "Colab T4 GPU"
 
-		return f'Other GPU ({gpu_name})'
+		return f"Other GPU ({gpu_name})"
 
 	@staticmethod
 	def setting_batch_size(device: str) -> int:
@@ -71,9 +71,9 @@ class DeviceManager:
 		:param device: 設備類型 ("Local CPU" 或 "Colab T4 GPU")
 		:return: 訓練批次大小
 		"""
-		if device == 'Local CPU':
+		if device == "Local CPU":
 			return 4  # 本地 CPU 設置較小的批次大小
-		elif device == 'Colab T4 GPU':
+		elif device == "Colab T4 GPU":
 			return 32  # Colab T4 GPU 可以使用較大的批次大小
 		else:
 			return 8  # 其他 GPU 設置中等大小的批次
@@ -93,15 +93,15 @@ class DataLoader:
 		texts = []
 		labels = []
 
-		with open(input_file, 'r', encoding='utf-8') as file:
+		with open(input_file, "r", encoding="utf-8") as file:
 			for line in file:
 				if len(texts) == batch_size:
 					yield texts, labels
 					texts, labels = [], []
 
 				review = json.loads(line)
-				texts.append(review['text'])
-				labels.append(int(review['stars']))
+				texts.append(review["text"])
+				labels.append(int(review["stars"]))
 
 			if texts:
 				yield texts, labels
@@ -139,7 +139,7 @@ class SentimentTrainer:
 		# 檢查是否存在訓練檢查點資料夾
 		try:
 			paths = os.listdir(self.training_args.output_dir)
-			checkpoints = [f for f in paths if f.startswith('checkpoint-')]
+			checkpoints = [f for f in paths if f.startswith("checkpoint-")]
 
 			# 如果找不到任何檢查點，則是第一次訓練
 			if not checkpoints:
@@ -173,12 +173,12 @@ class SentimentTrainer:
 
 # 載入 tokenizer 和模型
 tokenizer = BertTokenizer.from_pretrained(
-	'nlptown/bert-base-multilingual-uncased-sentiment'
+	"nlptown/bert-base-multilingual-uncased-sentiment"
 )
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	model = AutoModelForSequenceClassification.from_pretrained(
-		'nlptown/bert-base-multilingual-uncased-sentiment', num_labels=5
+		"nlptown/bert-base-multilingual-uncased-sentiment", num_labels=5
 	)
 
 	# 獲取當前腳本目錄
@@ -186,18 +186,18 @@ if __name__ == '__main__':
 
 	# 拼接相對路徑
 	input_file = (
-		script_dir / 'data' / 'custom_data' / 'train.json'
+		script_dir / "data" / "custom_data" / "train.json"
 	)  # 原始 JSON 文件
 
 	# 檢查設備並設置批次大小
 	device_type = DeviceManager.check_device()
 	train_batch_size = DeviceManager.setting_batch_size(device_type)
-	print('訓練批次大小:', train_batch_size)
+	print("訓練批次大小:", train_batch_size)
 
 	# 訓練模型
 	sentiment_trainer = SentimentTrainer(
-		output_dir=script_dir / 'service/model/results',
-		logging_dir=script_dir / 'service/model/logs',
+		output_dir=script_dir / "service/model/results",
+		logging_dir=script_dir / "service/model/logs",
 		train_batch_size=train_batch_size,
 	)
 
@@ -210,7 +210,7 @@ if __name__ == '__main__':
 		train_texts.extend(batch_texts)
 		train_labels.extend(batch_labels)
 
-		print(f'已處理 {len(train_texts)} 條數據')
+		print(f"已處理 {len(train_texts)} 條數據")
 
 		train_dataset = SentimentDataset(
 			train_texts, train_labels, tokenizer, max_length=128
@@ -221,7 +221,7 @@ if __name__ == '__main__':
 	# 儲存訓練好的模型
 	sentiment_trainer.save_model(
 		trainer_instance,
-		script_dir / 'service/model/sentiment_model',
+		script_dir / "service/model/sentiment_model",
 	)
 
 	# # 評估模型
