@@ -63,7 +63,7 @@ def get_train_data() -> Tuple[List, List]:
 
     # 拼接相對路徑
     input_file = (
-        script_dir.parent / "data" / "custom_data" / "train.json"
+        script_dir.parent.parent / "data" / "custom_data" / "train.json"
     )  # 原始 JSON 文件
 
     # 讀取 JSON 文件並提取訓練數據
@@ -72,7 +72,7 @@ def get_train_data() -> Tuple[List, List]:
     with open(input_file, "r", encoding="utf-8") as file:
         for i, line in enumerate(file):
 
-            if i > 1000:
+            if i > 10:
                 break
 
             review = json.loads(line)
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     # 設置訓練參數
     training_args = TrainingArguments(
-        output_dir="./results",  # 訓練結果儲存路徑
+        output_dir="./service/model/results",  # 訓練結果儲存路徑
         num_train_epochs=3,  # 訓練輪數
         per_device_train_batch_size=train_batch_size,  # 每次訓練的批次大小
         per_device_eval_batch_size=train_batch_size,  # 驗證時的批次大小
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     trainer.train()
 
     # 儲存訓練好的模型
-    trainer.save_model("./sentiment_model")
+    trainer.save_model("./service/model/sentiment_model")
 
     # 評估模型
     # 在此範例中，假設有測試數據集

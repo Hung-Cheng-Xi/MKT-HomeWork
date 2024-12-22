@@ -10,6 +10,13 @@
 # Icon must end with two \r
 Icon
 
+# pictures
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+
 # yelp data
 *.json
 
