@@ -23,6 +23,12 @@ Icon
 # training model
 results/
 sentiment_model/
+results_25/
+sentiment_model_25/
+results_50/
+sentiment_model_50/
+results_75/
+sentiment_model_75/
 
 # Thumbnails
 ._*
