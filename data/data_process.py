@@ -1,5 +1,4 @@
 import json
-import random
 from pathlib import Path
 
 # 獲取當前腳本目錄
@@ -9,18 +8,27 @@ script_dir = Path(__file__).resolve().parent
 input_file = (
 	script_dir / "source_data" / "yelp_academic_dataset_review.json"
 )  # 原始 JSON 文件
-train_file = script_dir / "custom_data" / "train.json"  # 訓練數據文件
-test_file = script_dir / "custom_data" / "test.json"  # 測試數據文件
-
-# 設置隨機種子，確保可重現性
-random.seed(42)
+output_250k_file = (
+	script_dir / "custom_data" / "data_250k.json"
+)  # 25萬筆數據文件
+output_500k_file = (
+	script_dir / "custom_data" / "data_500k.json"
+)  # 50萬筆數據文件
+output_750k_file = (
+	script_dir / "custom_data" / "data_750k.json"
+)  # 75萬筆數據文件
+output_75k_file = (
+	script_dir / "custom_data" / "data_75k.json"
+)  # 75萬筆數據文件
 
 # 初始化容器
-train_data = []
-test_data = []
+data_250k = []
+data_500k = []
+data_750k = []
+data_75k = []
 
-# 分割比例
-train_ratio = 0.8
+# 設定目標數據量
+target_counts = [250000, 500000, 750000, 825000]
 
 print("開始讀取原始數據文件...")
 
@@ -38,11 +46,19 @@ with open(input_file, "r", encoding="utf-8") as file:
 			"text": review["text"],
 		}
 
-		# 隨機分配到訓練或測試集
-		if random.random() < train_ratio:
-			train_data.append(filtered_review)
-		else:
-			test_data.append(filtered_review)
+		# 根據行數填充到對應數據容器
+		if i < target_counts[0]:
+			data_250k.append(filtered_review)
+		if i < target_counts[1]:
+			data_500k.append(filtered_review)
+		if i < target_counts[2]:
+			data_750k.append(filtered_review)
+		if i >= target_counts[2] and i <= target_counts[3]:
+			data_75k.append(filtered_review)
+
+		# 當最大目標數據量達成時停止讀取
+		if i + 1 >= target_counts[3]:
+			break
 
 		# 每讀取 10000 行，打印一次進度
 		if (i + 1) % 10000 == 0:
@@ -51,18 +67,35 @@ with open(input_file, "r", encoding="utf-8") as file:
 print("原始數據文件讀取完畢")
 print(f"總共讀取了 {i + 1} 行")
 
-print("開始儲存訓練數據文件...")
-# 儲存到文件
-with open(train_file, "w", encoding="utf-8") as train_out:
-	for review in train_data:
-		train_out.write(json.dumps(review) + "\n")
-print("訓練數據文件儲存完畢")
+# 儲存 25萬筆數據
+print("開始儲存 25萬筆數據文件...")
+with open(output_250k_file, "w", encoding="utf-8") as out_250k:
+	for review in data_250k:
+		out_250k.write(json.dumps(review) + "\n")
+print("25萬筆數據文件儲存完畢")
 
-print("開始儲存測試數據文件...")
-with open(test_file, "w", encoding="utf-8") as test_out:
-	for review in test_data:
-		test_out.write(json.dumps(review) + "\n")
-print("測試數據文件儲存完畢")
+# 儲存 50萬筆數據
+print("開始儲存 50萬筆數據文件...")
+with open(output_500k_file, "w", encoding="utf-8") as out_500k:
+	for review in data_500k:
+		out_500k.write(json.dumps(review) + "\n")
+print("50萬筆數據文件儲存完畢")
 
-print(f"訓練數據: {len(train_data)} 條")
-print(f"測試數據: {len(test_data)} 條")
+# 儲存 75萬筆數據
+print("開始儲存 75萬筆數據文件...")
+with open(output_750k_file, "w", encoding="utf-8") as out_750k:
+	for review in data_750k:
+		out_750k.write(json.dumps(review) + "\n")
+print("75萬筆數據文件儲存完畢")
+
+# 儲存 7.5萬筆數據
+print("開始儲存 7.5萬筆數據文件...")
+with open(output_75k_file, "w", encoding="utf-8") as out_75k:
+	for review in data_75k:
+		out_75k.write(json.dumps(review) + "\n")
+print("7.5萬筆數據文件儲存完畢")
+
+print(f"25萬筆數據: {len(data_250k)} 條")
+print(f"50萬筆數據: {len(data_500k)} 條")
+print(f"75萬筆數據: {len(data_750k)} 條")
+print(f"7.5萬筆數據: {len(data_75k)} 條")
