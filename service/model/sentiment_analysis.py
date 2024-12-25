@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import List, Tuple
+from typing import Generator, List, Tuple
 
 import torch
 from torch.utils.data import Dataset
@@ -101,7 +101,7 @@ class DataLoader:
 
 				review = json.loads(line)
 				texts.append(review["text"])
-				labels.append(int(review["stars"]))
+				labels.append(int(review["stars"] - 1))
 
 			if texts:
 				yield texts, labels
@@ -168,7 +168,7 @@ class SentimentTrainer:
 	@staticmethod
 	def save_model(trainer, model_path):
 		# 儲存訓練好的模型
-		trainer.save_model(model_path)
+		trainer.save_model(model_path, weights_only=True)
 
 
 # 載入 tokenizer 和模型
@@ -178,7 +178,9 @@ tokenizer = BertTokenizer.from_pretrained(
 
 if __name__ == "__main__":
 	model = AutoModelForSequenceClassification.from_pretrained(
-		"nlptown/bert-base-multilingual-uncased-sentiment", num_labels=5
+		"nlptown/bert-base-multilingual-uncased-sentiment",
+		num_labels=5,
+		torch_dtype=torch.float32,
 	)
 
 	# 獲取當前腳本目錄
