@@ -83,7 +83,7 @@ def get_test_data() -> List:
 
 if __name__ == "__main__":
 	# 初始化預測器
-	predictor = SentimentPredictor("service/model/sentiment_model")
+	predictor = SentimentPredictor("service/model/sentiment_model_25")
 
 	# 獲取測試數據
 	test_sentences = get_test_data()
