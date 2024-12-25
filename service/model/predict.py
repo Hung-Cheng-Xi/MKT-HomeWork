@@ -4,7 +4,7 @@ from typing import List
 
 import torch
 from transformers import AutoModelForSequenceClassification, BertTokenizer
-from insta_food import InstaFoodNER
+from ..insta_food import InstaFoodNER
 
 
 class SentimentPredictor:
