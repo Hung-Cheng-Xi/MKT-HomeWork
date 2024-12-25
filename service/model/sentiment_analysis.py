@@ -83,7 +83,7 @@ class DataLoader:
 	@staticmethod
 	def read_data_in_batches(
 		input_file: str, batch_size: int = 1000
-	) -> Tuple[List, List]:
+	) -> Generator[Tuple[List, List], None, None]:
 		"""
 		分批次讀取 JSON 文件，並將每一批次的文本和標籤返回
 		:param input_file: JSON 文件路徑
