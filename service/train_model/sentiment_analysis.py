@@ -121,13 +121,13 @@ class SentimentTrainer:
 		warmup_steps: int = 100,
 		weight_decay: float = 0.01,
 	):
-		# 设置训练参数
+		# 設置訓練參數
 		self.training_args = TrainingArguments(
 			output_dir=output_dir,  # 訓練結果保存目錄
 			num_train_epochs=num_train_epochs,  # 訓練輪數
 			per_device_train_batch_size=train_batch_size,  # 訓練批次大小
-			save_steps=save_steps,  # 保存检查点
-			save_total_limit=save_total_limit,  # 最多保留两个检查点
+			save_steps=save_steps,  # 保存檢查點
+			save_total_limit=save_total_limit,  # 最多保留兩個檢查點
 			logging_dir=logging_dir,  # 日誌保存目錄
 			logging_steps=logging_steps,  # 每隔多少步保存日誌
 			load_best_model_at_end=load_best_model_at_end,  # 訓練結束後載入最佳模型  # noqa: E501
