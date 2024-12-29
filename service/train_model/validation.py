@@ -112,9 +112,9 @@ class SentimentTrainer:
         logging_dir: str,
         num_train_epochs: int = 1,
         train_batch_size: int = 4,
-        save_steps: int = 100,
+        save_steps: int = 200,
         save_total_limit: int = 2,
-        logging_steps: int = 10,
+        logging_steps: int = 100,
         load_best_model_at_end: bool = False,
         warmup_steps: int = 10000,
         weight_decay: float = 0.01,
@@ -138,7 +138,7 @@ class SentimentTrainer:
             gradient_checkpointing=True,
             dataloader_num_workers=4,
             dataloader_prefetch_factor=2,
-            eval_steps=100,
+            eval_steps=400,
             evaluation_strategy="steps",
         )
 
@@ -166,10 +166,8 @@ class SentimentTrainer:
         )
 
         # 訓練模型，檢查是否為第一次訓練
-        if self._check_first_training():
-            trainer.train(resume_from_checkpoint=True)
-        else:
-            trainer.train(resume_from_checkpoint=False)
+        
+        trainer.train()
 
         return trainer
 
