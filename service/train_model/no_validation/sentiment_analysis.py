@@ -51,7 +51,7 @@ class SentimentTrainer:
 		self,
 		output_dir: str,
 		logging_dir: str,
-		num_train_epochs: int = 1,
+		num_train_epochs: int = 3,
 		train_batch_size: int = 4,
 		save_steps: int = 100,
 		save_total_limit: int = 2,

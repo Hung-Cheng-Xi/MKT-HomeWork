@@ -8,13 +8,14 @@
 
 1. 安裝 Python 3.12.7
 2. 使用 Poetry 安裝依賴：
+
    ```sh
    poetry install
    ```
 
 ### env setting
 
-```
+```sh
 python -m venv myenv
 source myenv/bin/activate # or env\Scripts\activate
 
@@ -23,30 +24,44 @@ pip install -r requirements.txt
 
 ## 訓練模型
 
-在 `service/sentiment_analysis.py` 中定義了模型的訓練過程。要訓練模型，請運行以下命令：
+在 `service/train_model/no_validation/sentiment_analysis.py` 中定義了模型的訓練過程。要訓練模型，請運行以下命令：
 
 ```sh
-python sentiment_analysis.py
+python -m service.train_model.no_validation.sentiment_analysis
 ```
 
-訓練完成後，模型將會儲存在 service/sentiment_model/ 目錄中。
+在 `service/train_model/k_fold/validation.py` 中定義了有驗證模型的訓練過程。要訓練模型，請運行以下命令：
+
+```sh
+python -m service.train_model.k_fold.validation
+```
+
+訓練完成後，模型將會儲存在 service/model/ 目錄中。
 
 ## 預測情感
 
-在 service/predict.py 中定義了情感預測的過程。要進行情感預測，請運行以下命令：
+在 service/train_model/no_validation/predict.py 中定義了情感預測的過程。要進行情感預測，請運行以下命令：
 
 ```sh
-python predict.py
+python -m service.train_model.no_validation.predict
 ```
 
 該腳本將會對一些測試句子進行情感分析並輸出結果。
 
-## 檢查標籤
+## 檢查精準度
 
-在 service/check_tag.py 中可以檢查模型的標籤映射。要查看標籤映射，請運行以下命令：
+在 service/train_model/no_validation/check_accuracy.py 中可以檢查模型的精準度。要查看精準度，請運行以下命令：
 
 ```sh
-python check_tag.py
+python -m service.train_model.no_validation.check_accuracy
+```
+
+## 檢查標籤
+
+在 service/train_model/no_validation/check_tag.py 中可以檢查模型的標籤映射。要查看標籤映射，請運行以下命令：
+
+```sh
+python -m service.train_model.no_validation.check_tag
 ```
 
 ## 依賴項
@@ -68,9 +83,12 @@ python check_tag.py
 
 ```toml
 # yelp data
-data/
+*.json
 
 # training model
 results/
 sentiment_model/
+results_*
+sentiment_model_*
+kv_fold_results_*
 ```
