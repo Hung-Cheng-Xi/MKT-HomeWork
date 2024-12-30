@@ -120,11 +120,11 @@ class SentimentTrainer:
 		logging_dir: str,
 		num_train_epochs: int = 1,
 		train_batch_size: int = 4,
-		save_steps: int = 200,
+		save_steps: int = 600,
 		save_total_limit: int = 2,
-		logging_steps: int = 100,
-		load_best_model_at_end: bool = False,
-		warmup_steps: int = 300,
+		logging_steps: int = 150,
+		load_best_model_at_end: bool = True,
+		warmup_steps: int = 450,
 		weight_decay: float = 0.01,
 		weight_regularization: float = 0.0,
 		batch_normalization: bool = False,
@@ -139,7 +139,7 @@ class SentimentTrainer:
 			save_total_limit=save_total_limit,  # 最多保留兩個檢查點
 			logging_dir=logging_dir,  # 日誌保存目錄
 			logging_steps=logging_steps,  # 每隔多少步保存日誌
-			load_best_model_at_end=load_best_model_at_end,  # 訓練結束後載入最佳模型
+			load_best_model_at_end=load_best_model_at_end,  # 訓練結束後載入最佳模型  # noqa: E501
 			warmup_steps=warmup_steps,  # 預熱步數
 			weight_decay=weight_decay,  # 權重衰減
 			fp16=True,
@@ -148,7 +148,7 @@ class SentimentTrainer:
 			gradient_checkpointing=True,
 			dataloader_num_workers=4,
 			dataloader_prefetch_factor=2,
-			eval_steps=300,
+			eval_steps=600,
 			evaluation_strategy="steps",
 		)
 
@@ -233,7 +233,7 @@ tokenizer = BertTokenizer.from_pretrained(
 # Main Program
 if __name__ == "__main__":
 	# 獲取當前腳本目錄
-	script_dir = Path(__file__).resolve().parent.parent.parent.parent
+	script_dir = Path(__file__).resolve().parent.parent.parent
 
 	# 拼接相對路徑
 	input_file = "data/custom_data/data_250k.json"  # 原始 JSON 文件
