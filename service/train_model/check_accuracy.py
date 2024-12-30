@@ -62,7 +62,7 @@ for model_name in model_names:
 		input_file
 	):
 		# 預測
-		batch_texts = [text[:128] for text in batch_texts]
+		batch_texts = [text[:512] for text in batch_texts]
 		preds = classifier(batch_texts)
 		predicted_labels = [
 			int(pred["label"].strip().split()[0]) - 1 for pred in preds
