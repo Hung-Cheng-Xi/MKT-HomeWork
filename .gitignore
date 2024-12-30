@@ -23,12 +23,9 @@ Icon
 # training model
 results/
 sentiment_model/
-results_25/
-sentiment_model_25/
-results_50/
-sentiment_model_50/
-results_75/
-sentiment_model_75/
+results_*
+sentiment_model_*
+kv_fold_results_*
 
 # Thumbnails
 ._*
