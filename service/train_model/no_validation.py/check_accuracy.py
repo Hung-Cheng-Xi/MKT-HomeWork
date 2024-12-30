@@ -11,7 +11,7 @@ import torch
 
 # 設定檔案路徑與模型列表
 # 獲取當前腳本目錄
-script_dir = Path(__file__).resolve().parent.parent.parent
+script_dir = Path(__file__).resolve().parent.parent.parent.parent
 
 # 拼接相對路徑
 input_file = (

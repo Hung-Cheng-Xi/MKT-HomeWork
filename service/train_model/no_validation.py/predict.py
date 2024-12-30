@@ -58,7 +58,7 @@ class SentimentPredictor:
 
 def get_test_data() -> List:
 	# 獲取當前腳本目錄
-	script_dir = Path(__file__).resolve().parent
+	script_dir = Path(__file__).resolve().parent.parent
 
 	# 拼接相對路徑
 	input_file = (
