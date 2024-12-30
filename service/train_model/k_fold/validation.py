@@ -17,9 +17,9 @@ from transformers import (
 )
 
 from ..share import (
-	DataLoader,
-	DeviceManager,
-	SentimentDataset,
+    DataLoader,
+    DeviceManager,
+    SentimentDataset
 )
 
 
@@ -30,21 +30,18 @@ class SentimentTrainer:
 		logging_dir: str,
 		num_train_epochs: int = 1,
 		train_batch_size: int = 4,
-		save_steps: int = 600,
+		save_steps: int = 100,
 		save_total_limit: int = 2,
-		logging_steps: int = 150,
-		load_best_model_at_end: bool = True,
-		warmup_steps: int = 450,
+		logging_steps: int = 10,
+		load_best_model_at_end: bool = False,
+		warmup_steps: int = 100,
 		weight_decay: float = 0.01,
-		weight_regularization: float = 0.0,
-		batch_normalization: bool = False,
 	):
 		# 設置訓練參數
 		self.training_args = TrainingArguments(
 			output_dir=output_dir,  # 訓練結果保存目錄
 			num_train_epochs=num_train_epochs,  # 訓練輪數
 			per_device_train_batch_size=train_batch_size,  # 訓練批次大小
-			per_device_eval_batch_size=train_batch_size,  # 評估批次大小
 			save_steps=save_steps,  # 保存檢查點
 			save_total_limit=save_total_limit,  # 最多保留兩個檢查點
 			logging_dir=logging_dir,  # 日誌保存目錄
@@ -52,18 +49,7 @@ class SentimentTrainer:
 			load_best_model_at_end=load_best_model_at_end,  # 訓練結束後載入最佳模型  # noqa: E501
 			warmup_steps=warmup_steps,  # 預熱步數
 			weight_decay=weight_decay,  # 權重衰減
-			fp16=True,
-			fp16_opt_level="O2",
-			gradient_accumulation_steps=4,
-			gradient_checkpointing=True,
-			dataloader_num_workers=4,
-			dataloader_prefetch_factor=2,
-			eval_steps=600,
-			evaluation_strategy="steps",
 		)
-
-		self.weight_regularization = weight_regularization
-		self.batch_normalization = batch_normalization
 
 	def _check_first_training(self) -> bool:
 		# 檢查是否存在訓練檢查點資料夾
@@ -80,29 +66,26 @@ class SentimentTrainer:
 			return False
 
 	def train_model(self, model, train_dataset, eval_dataset=None):
-		# 啟用 Weight Regularization
-		if self.weight_regularization > 0:
-			for param in model.parameters():
-				param.data.mul_(1 - self.weight_regularization)
-
-		# 啟用 Batch Normalization
-		if self.batch_normalization:
-			model.classifier = torch.nn.Sequential(
-				model.classifier,
-				torch.nn.BatchNorm1d(5),  # 將參數設置為輸出的類別數
-			)
-
 		# 初始化 Trainer
 		trainer = Trainer(
-			model=model,  # 使用的模型
-			args=self.training_args,  # 訓練參數
-			train_dataset=train_dataset,  # 訓練數據集
-			eval_dataset=eval_dataset,  # 評估數據集
-		)
+            model=model,  # 使用的模型
+            args=self.training_args,  # 訓練參數
+            train_dataset=train_dataset,  # 訓練數據集
+            eval_dataset=eval_dataset,  # 評估數據集
+        )
 
 		# 訓練模型，檢查是否為第一次訓練
-		trainer.train()
+		if self._check_first_training():
+			trainer.train(resume_from_checkpoint=True)
+		else:
+			trainer.train(resume_from_checkpoint=False)
+
 		return trainer
+
+	@staticmethod
+	def save_model(trainer, model_path):
+		# 儲存訓練好的模型
+		trainer.save_model(model_path, weights_only=True)
 
 	def evaluate_model(self, model, test_dataset):
 		"""
@@ -132,7 +115,7 @@ class SentimentTrainer:
 	@staticmethod
 	def save_model(trainer, model_path):
 		# 儲存訓練好的模型
-		trainer.save_model(model_path, weights_only=True)
+		trainer.save_model(model_path)
 
 
 # 載入 tokenizer 和模型
@@ -181,12 +164,10 @@ if __name__ == "__main__":
 		output_dir=script_dir / "service/model/results",
 		logging_dir=script_dir / "service/model/logs",
 		train_batch_size=train_batch_size,
-		num_train_epochs=3,
-		weight_regularization=0.001,
-		batch_normalization=True,
 	)
 
 	# 執行K-fold交叉驗證
+	batch_round = 0
 	for fold, (train_index, test_index) in enumerate(kf.split(x)):
 		print(f"\nFold {fold + 1}/5")
 		X_train, X_test = x[train_index], x[test_index]
@@ -216,23 +197,43 @@ if __name__ == "__main__":
 			model, train_dataset, test_dataset
 		)
 
+		# 儲存模型	
+		sentiment_trainer.save_model(
+			trainer_instance,
+			script_dir / "service" / "model" / f"k_fold_{batch_round}"
+		)
+
 		# 評估模型
 		metrics = sentiment_trainer.evaluate_model(model, test_dataset)
-
+		metrics_file = script_dir / "service" / "model" / f"metrics_fold_{fold + 1}.txt"
+		with open(metrics_file, "w") as file:
+			file.write(f"Fold {fold + 1} Results:\n")
+			file.write(f"Accuracy: {metrics['accuracy']:.4f}\n")
+			file.write(f"Precision: {metrics['precision']:.4f}\n")
+			file.write(f"Recall: {metrics['recall']:.4f}\n")
+			file.write(f"F1-score: {metrics['f1']:.4f}\n")
 		# 累計指標
 		sum_accuracy += metrics["accuracy"]
 		sum_precision += metrics["precision"]
 		sum_recall += metrics["recall"]
 		sum_f1 += metrics["f1"]
-
+		
 		# 輸出當前fold結果
 		print(f"Fold {fold + 1} Results:")
 		print(f'Accuracy: {metrics["accuracy"]:.4f}')
 		print(f'Precision: {metrics["precision"]:.4f}')
 		print(f'Recall: {metrics["recall"]:.4f}')
 		print(f'F1-score: {metrics["f1"]:.4f}')
+		batch_round += 1
 
 	# 輸出平均指標
+	avg_metrics_file = script_dir / "service" / "model" / "average_metrics.txt"
+	with open(avg_metrics_file, "w") as file:
+		file.write("Average Results:\n")
+		file.write(f"Average Accuracy: {sum_accuracy / 5:.4f}\n")
+		file.write(f"Average Precision: {sum_precision / 5:.4f}\n")
+		file.write(f"Average Recall: {sum_recall / 5:.4f}\n")
+		file.write(f"Average F1-score: {sum_f1 / 5:.4f}\n")
 	print("\nAverage Results:")
 	print(f"Average Accuracy: {sum_accuracy / 5:.4f}")
 	print(f"Average Precision: {sum_precision / 5:.4f}")
