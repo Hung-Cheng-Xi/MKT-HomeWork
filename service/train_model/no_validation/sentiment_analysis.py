@@ -10,7 +10,7 @@ from transformers import (
 	TrainingArguments,
 )
 
-from share import DataLoader, DeviceManager
+from ..share import DataLoader, DeviceManager
 
 # 定義數據集類別
 

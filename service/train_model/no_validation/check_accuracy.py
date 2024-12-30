@@ -5,7 +5,7 @@ from transformers import (
 	AutoModelForSequenceClassification,
 	pipeline,
 )
-from .share import DataLoader
+from ..share import DataLoader
 import torch
 
 
