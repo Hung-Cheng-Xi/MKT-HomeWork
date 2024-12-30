@@ -2,6 +2,39 @@ import json
 from typing import Generator, List, Tuple
 
 import torch
+from torch.utils.data import Dataset
+
+
+# 定義數據集類別
+class SentimentDataset(Dataset):
+	def __init__(self, texts, labels, tokenizer, max_length):
+		self.texts = texts
+		self.labels = labels
+		self.tokenizer = tokenizer
+		self.max_length = max_length
+
+	def __len__(self):
+		return len(self.texts)
+
+	def __getitem__(self, item):
+		text = self.texts[item]
+		label = self.labels[item]
+
+		encoding = self.tokenizer.encode_plus(
+			text,
+			add_special_tokens=True,  # Add [CLS] and [SEP] tokens
+			max_length=self.max_length,
+			padding="max_length",  # Pad to max length
+			truncation=True,  # 文字超出長度是否截斷
+			return_attention_mask=True,  # Return attention mask
+			return_tensors="pt",  # Return PyTorch tensors
+		)
+
+		return {
+			"input_ids": encoding["input_ids"].flatten(),
+			"attention_mask": encoding["attention_mask"].flatten(),
+			"labels": torch.tensor(label, dtype=torch.long),
+		}
 
 
 class DeviceManager:
@@ -34,7 +67,7 @@ class DeviceManager:
 		elif device == "Colab T4 GPU":
 			return 32  # Colab T4 GPU 可以使用較大的批次大小
 		else:
-			return 8  # 其他 GPU 設置中等大小的批次
+			return 16  # 其他 GPU 設置中等大小的批次
 
 
 class DataLoader:
