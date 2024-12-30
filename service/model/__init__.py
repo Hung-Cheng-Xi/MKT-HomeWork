@@ -1,2 +1,1 @@
-from sentiment_model import *
-
+from sentiment_model import *  # noqa: F403
