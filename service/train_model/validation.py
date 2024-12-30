@@ -74,7 +74,7 @@ class DeviceManager:
         elif device == "Colab T4 GPU":
             return 32  # Colab T4 GPU 可以使用較大的批次大小
         else:
-            return 128  # 其他 GPU 設置中等大小的批次
+            return 16  # 其他 GPU 設置中等大小的批次
 
 
 class DataLoader:
@@ -116,8 +116,10 @@ class SentimentTrainer:
         save_total_limit: int = 2,
         logging_steps: int = 100,
         load_best_model_at_end: bool = False,
-        warmup_steps: int = 10000,
+        warmup_steps: int = 300,
         weight_decay: float = 0.01,
+        weight_regularization: float = 0.0,
+        batch_normalization: bool = False,
     ):
         # 設置訓練參數
         self.training_args = TrainingArguments(
@@ -134,13 +136,16 @@ class SentimentTrainer:
             weight_decay=weight_decay,  # 權重衰減
             fp16=True,
             fp16_opt_level="O2",
-            gradient_accumulation_steps=2,
+            gradient_accumulation_steps=4,
             gradient_checkpointing=True,
             dataloader_num_workers=4,
             dataloader_prefetch_factor=2,
-            eval_steps=400,
+            eval_steps=300,
             evaluation_strategy="steps",
         )
+        
+        self.weight_regularization = weight_regularization
+        self.batch_normalization = batch_normalization
 
     def _check_first_training(self) -> bool:
         # 檢查是否存在訓練檢查點資料夾
@@ -157,6 +162,18 @@ class SentimentTrainer:
             return False
 
     def train_model(self, model, train_dataset, eval_dataset=None):
+        # 啟用 Weight Regularization
+        if self.weight_regularization > 0:
+            for param in model.parameters():
+                param.data.mul_(1 - self.weight_regularization)
+
+        # 啟用 Batch Normalization  
+        if self.batch_normalization:
+            model.classifier = torch.nn.Sequential(
+                model.classifier,
+                torch.nn.BatchNorm1d(5)  # 將參數設置為輸出的類別數
+            )
+
         # 初始化 Trainer
         trainer = Trainer(
             model=model,  # 使用的模型
@@ -166,9 +183,7 @@ class SentimentTrainer:
         )
 
         # 訓練模型，檢查是否為第一次訓練
-        
         trainer.train()
-
         return trainer
 
     def evaluate_model(self, model, test_dataset):
@@ -249,6 +264,8 @@ if __name__ == "__main__":
         logging_dir=script_dir / "service/model/logs",
         train_batch_size=train_batch_size,
         num_train_epochs=3,
+        weight_regularization=0.001,
+        batch_normalization=True,
     )
 
     # 執行K-fold交叉驗證
@@ -295,15 +312,9 @@ if __name__ == "__main__":
         print(f'Recall: {metrics["recall"]:.4f}')
         print(f'F1-score: {metrics["f1"]:.4f}')
 
-        # 保存模型
-        #sentiment_trainer.save_model(
-        #    trainer_instance,
-        #    script_dir / f"service/model/sentiment_model_fold_{fold + 1}",
-        #)
-
-    # 輸出平均指標
+    # 輸出平均指標 
     print('\nAverage Results:')
     print(f'Average Accuracy: {sum_accuracy / 5:.4f}')
-    print(f'Average Precision: {sum_precision / 5:.4f}')
+    print(f'Average Precision: {sum_precision / 5:.4f}')  
     print(f'Average Recall: {sum_recall / 5:.4f}')
     print(f'Average F1-score: {sum_f1 / 5:.4f}')
