@@ -6,6 +6,7 @@ from transformers import (
 	pipeline,
 )
 from ..share import DataLoader
+from ...chart import plot_model_accuracy
 import torch
 
 
@@ -19,11 +20,9 @@ input_file = (
 )  # 原始 JSON 文件
 
 model_names = [
-	"service/model/sentiment_model",
 	"service/model/sentiment_model_25",
 	"service/model/sentiment_model_50",
 	"service/model/sentiment_model_75",
-	"service/model/kv_fold_results_25",
 ]
 
 # 儲存結果
@@ -39,11 +38,11 @@ for model_name in model_names:
 	model = AutoModelForSequenceClassification.from_pretrained(
 		model_name, num_labels=5
 	)
-	# model.to(device)
 
 	print("模型載入完成")
 
 	# 創建推論管道
+	# 作用：创建推理管道，封装了模型、分詞器和設備（CPU/GPU）的邏輯。
 	classifier = pipeline(
 		"text-classification",
 		model=model,
@@ -79,6 +78,9 @@ for model_name in model_names:
 	results[model_name] = accuracy
 	print(f"Accuracy for {model_name}: {accuracy:.4f}")
 	print("-" * 50)
+
+# 繪製準確度圖表
+plot_model_accuracy(results)
 
 # 輸出結果
 print("\nFinal Results:")
