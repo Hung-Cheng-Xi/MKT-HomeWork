@@ -17,9 +17,9 @@ from transformers import (
 )
 
 from ..share import (
-    DataLoader,
-    DeviceManager,
-    SentimentDataset
+	DataLoader,
+	DeviceManager,
+	SentimentDataset
 )
 
 
@@ -68,11 +68,11 @@ class SentimentTrainer:
 	def train_model(self, model, train_dataset, eval_dataset=None):
 		# 初始化 Trainer
 		trainer = Trainer(
-            model=model,  # 使用的模型
-            args=self.training_args,  # 訓練參數
-            train_dataset=train_dataset,  # 訓練數據集
-            eval_dataset=eval_dataset,  # 評估數據集
-        )
+			model=model,  # 使用的模型
+			args=self.training_args,  # 訓練參數
+			train_dataset=train_dataset,  # 訓練數據集
+			eval_dataset=eval_dataset,  # 評估數據集
+		)
 
 		# 訓練模型，檢查是否為第一次訓練
 		if self._check_first_training():
@@ -111,11 +111,6 @@ class SentimentTrainer:
 			"recall": recall,
 			"f1": f1,
 		}
-
-	@staticmethod
-	def save_model(trainer, model_path):
-		# 儲存訓練好的模型
-		trainer.save_model(model_path)
 
 
 # 載入 tokenizer 和模型
@@ -197,15 +192,17 @@ if __name__ == "__main__":
 			model, train_dataset, test_dataset
 		)
 
-		# 儲存模型	
+		# 儲存模型
 		sentiment_trainer.save_model(
 			trainer_instance,
-			script_dir / "service" / "model" / f"k_fold_{batch_round}"
+			script_dir / "service" / "model" / f"k_fold_{batch_round}",
 		)
 
 		# 評估模型
 		metrics = sentiment_trainer.evaluate_model(model, test_dataset)
-		metrics_file = script_dir / "service" / "model" / f"metrics_fold_{fold + 1}.txt"
+		metrics_file = (
+			script_dir / "service" / "model" / f"metrics_fold_{fold + 1}.txt"
+		)
 		with open(metrics_file, "w") as file:
 			file.write(f"Fold {fold + 1} Results:\n")
 			file.write(f"Accuracy: {metrics['accuracy']:.4f}\n")
@@ -217,7 +214,7 @@ if __name__ == "__main__":
 		sum_precision += metrics["precision"]
 		sum_recall += metrics["recall"]
 		sum_f1 += metrics["f1"]
-		
+
 		# 輸出當前fold結果
 		print(f"Fold {fold + 1} Results:")
 		print(f'Accuracy: {metrics["accuracy"]:.4f}')
