@@ -22,10 +22,9 @@ Icon
 
 # training model
 results/
-sentiment_model/
+sentiment_*
 results_*
-sentiment_model_*
-kv_fold_results_*
+k_fold_*
 
 # Thumbnails
 ._*

@@ -4,7 +4,7 @@ from typing import List
 
 import torch
 from transformers import AutoModelForSequenceClassification, BertTokenizer
-from ..insta_food import InstaFoodNER
+from ...insta_food import InstaFoodNER
 
 
 class SentimentPredictor:
@@ -62,7 +62,7 @@ def get_test_data() -> List:
 
 	# 拼接相對路徑
 	input_file = (
-		script_dir.parent.parent / "data" / "custom_data" / "data_75k.json"
+		script_dir.parent.parent / "data" / "custom_data" / "test.json"
 	)  # 原始 JSON 文件
 
 	# 讀取 JSON 文件並提取訓練數據
@@ -83,7 +83,7 @@ def get_test_data() -> List:
 
 if __name__ == "__main__":
 	# 初始化預測器
-	predictor = SentimentPredictor("service/model/sentiment_model_25")
+	predictor = SentimentPredictor("service/model/k_fold_3")
 
 	# 獲取測試數據
 	test_sentences = get_test_data()
