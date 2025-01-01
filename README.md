@@ -50,18 +50,18 @@ python -m service.train_model.no_validation.predict
 
 ## 檢查精準度
 
-在 service/train_model/no_validation/check_accuracy.py 中可以檢查模型的精準度。要查看精準度，請運行以下命令：
+在 service/train_model/check/accuracy.py 中可以檢查模型的精準度。要查看精準度，請運行以下命令：
 
 ```sh
-python -m service.train_model.no_validation.check_accuracy
+python -m service.train_model.check.accuracy
 ```
 
 ## 檢查標籤
 
-在 service/train_model/no_validation/check_tag.py 中可以檢查模型的標籤映射。要查看標籤映射，請運行以下命令：
+在 service/train_model/check/tag.py 中可以檢查模型的標籤映射。要查看標籤映射，請運行以下命令：
 
 ```sh
-python -m service.train_model.no_validation.check_tag
+python -m service.train_model.check.tag
 ```
 
 ## 依賴項
