@@ -13,7 +13,7 @@ def plot_model_accuracy(data: Dict[str, float]) -> None:
 	model_names, accuracies = zip(*data.items())
 
 	# 繪圖
-	plt.figure(figsize=(15, 6))
+	plt.figure(figsize=(10, 6))
 	plt.bar(model_names, accuracies, color="skyblue")
 	plt.title("Model Accuracy Comparison", fontsize=16)
 	plt.xlabel("Model", fontsize=14)
