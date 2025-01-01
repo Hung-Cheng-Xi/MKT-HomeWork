@@ -16,11 +16,7 @@ from transformers import (
 	TrainingArguments,
 )
 
-from ..share import (
-	DataLoader,
-	DeviceManager,
-	SentimentDataset
-)
+from ..share import DataLoader, DeviceManager, SentimentDataset
 
 
 class SentimentTrainer:
